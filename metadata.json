@@ -1,0 +1,5 @@
+{
+  "name": "Legacy EMR Portal",
+  "description": "A simulation of a legacy hospital EMR portal with specific RPA targets and a late 90s aesthetic.",
+  "requestFramePermissions": []
+}
