@@ -15,14 +15,17 @@ const App: React.FC = () => {
   const [records, setRecords] = useState<PatientRecord[]>([]);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
-  // Load data on mount
+  // Load data on mount (Async for IndexedDB)
   useEffect(() => {
-    const loadedRecords = getRecords();
-    setRecords(loadedRecords);
+    const loadData = async () => {
+      const loadedRecords = await getRecords();
+      setRecords(loadedRecords);
+    };
+    loadData();
   }, []);
 
   // Handle Submission
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!patientName || !insuranceCompanyName || !diagnosisCode || !approvalStatus) {
@@ -40,7 +43,8 @@ const App: React.FC = () => {
       timestamp: new Date().toLocaleString(),
     };
 
-    const updatedRecords = saveRecord(newRecord);
+    // Save to IndexedDB (Async)
+    const updatedRecords = await saveRecord(newRecord);
     setRecords(updatedRecords);
 
     // Clear form
@@ -131,6 +135,7 @@ const App: React.FC = () => {
                     >
                       <option value="Approved">Approved</option>
                       <option value="Declined">Declined</option>
+                      <option value="Rule Not Found">Rule Not Found</option>
                     </select>
                   </div>
 
@@ -174,7 +179,7 @@ const App: React.FC = () => {
               <div className="card p-4 text-sm text-gray-600 bg-blue-50 border-blue-100">
                 <h3 className="font-bold text-blue-800 mb-2 border-b border-blue-200 pb-1">System Status</h3>
                 <ul className="space-y-1">
-                  <li className="flex justify-between"><span>Database:</span> <span className="text-green-600 font-semibold">Online</span></li>
+                  <li className="flex justify-between"><span>Database:</span> <span className="text-green-600 font-semibold">Online (IndexedDB)</span></li>
                   <li className="flex justify-between"><span>Latency:</span> <span>24ms</span></li>
                   <li className="flex justify-between"><span>User:</span> <span>Admin_01</span></li>
                 </ul>
@@ -236,6 +241,10 @@ const App: React.FC = () => {
                         ) : record.approvalStatus === 'Declined' ? (
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                             Declined
+                          </span>
+                        ) : record.approvalStatus === 'Rule Not Found' ? (
+                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Rule Not Found
                           </span>
                         ) : (
                           <span className="text-black">{record.approvalStatus}</span>
